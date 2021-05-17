@@ -12,6 +12,7 @@ class Point:
         self.orientation = orientation
         self.distance = self.calculate_distance(parent_distance)
         self.heuristics = self.calculate_heuristics()
+        self.step = 5
 
     def __str__(self):
         return f'Class Point:\nPosition: {self.position}\nParent: {self.parent}\n' \
@@ -27,18 +28,18 @@ class Point:
             return 0
 
     def calculate_heuristics(self):
-        return math.sqrt(abs(self.position[0] - 1840) * abs(self.position[0] - 1840) + abs(self.position[1] - 50) *
-                         abs(self.position[1] - 50))
+        return math.sqrt(abs(self.position[0] - 360) * abs(self.position[0] - 360) + abs(self.position[1] - 30) *
+                         abs(self.position[1] - 30))
 
     def get_state_lattice(self):
-        N = Point((self.x, self.y - 10), self.position, 'N', self.distance)
-        NE = Point((self.x + 10, self.y - 10), self.position, 'NE', self.distance)
-        E = Point((self.x + 10, self.y), self.position, 'E', self.distance)
-        SE = Point((self.x + 10, self.y + 10), self.position, 'SE', self.distance)
-        S = Point((self.x, self.y + 10), self.position, 'S', self.distance)
-        SW = Point((self.x - 10, self.y + 10), self.position, 'SW', self.distance)
-        W = Point((self.x - 10, self.y), self.position, 'W', self.distance)
-        NW = Point((self.x - 10, self.y - 10), self.position, 'NW', self.distance)
+        N = Point((self.x, self.y - self.step), self.position, 'N', self.distance)
+        NE = Point((self.x + self.step, self.y - self.step), self.position, 'NE', self.distance)
+        E = Point((self.x + self.step, self.y), self.position, 'E', self.distance)
+        SE = Point((self.x + self.step, self.y + self.step), self.position, 'SE', self.distance)
+        S = Point((self.x, self.y + self.step), self.position, 'S', self.distance)
+        SW = Point((self.x - self.step, self.y + self.step), self.position, 'SW', self.distance)
+        W = Point((self.x - self.step, self.y), self.position, 'W', self.distance)
+        NW = Point((self.x - self.step, self.y - self.step), self.position, 'NW', self.distance)
         if self.orientation == 'N':
             return [N, NW, NE]
         if self.orientation == 'NE':
@@ -60,27 +61,27 @@ class Point:
         if self.parent:
             path_points = []
             if self.parent[0] == self.x:
-                for y in range(10):
+                for y in range(self.step):
                     path_point = (self.x, int(self.y + y * ((self.parent[1] - self.y) / abs(self.parent[1] - self.y))))
                     path_points.append(path_point)
             elif self.parent[1] == self.y:
-                for x in range(10):
+                for x in range(self.step):
                     path_point = (int(self.x + x * ((self.parent[0] - self.x) / abs(self.parent[0] - self.x))), self.y)
                     path_points.append(path_point)
             else:
-                for xy in range(10):
+                for xy in range(self.step):
                     path_point = (int(self.x + xy * ((self.parent[0] - self.x) / abs(self.parent[0] - self.x))),
                                   int(self.y + xy * ((self.parent[1] - self.y) / abs(self.parent[1] - self.y))))
                     path_points.append(path_point)
             return path_points
 
 
-map = cv2.imread("mapa4.png")
+map = cv2.imread("mapa3.png")
 
 width = np.shape(map)[1]
 height = np.shape(map)[0]
 
-start = Point((70, 80), None, 'E')
+start = Point((20, 20), None, 'E')
 points = [start]
 queue = [start]
 while queue:
@@ -106,7 +107,6 @@ while queue:
         if is_new:
             points.append(new_point)
             queue.append(new_point)
-            map[new_point.x, new_point.y] = [255, 0, 0]
 
 for point2 in points:
     path = point2.return_path()
@@ -118,7 +118,7 @@ for point2 in points:
 points = sorted(points, key=lambda e: e.distance)
 path = []
 for point in points:
-    if point.y == 1840 and point.x == 50:
+    if point.y == 360 and point.x == 30:
         path.append(point)
         break
 while True:
@@ -137,7 +137,7 @@ for point2 in path:
             print(point)
             map[point[0], point[1]] = [0, 0, 255]
 
-# map = cv2.resize(map, (1200,900), interpolation=cv2.INTER_AREA)
+map = cv2.resize(map, (1200,900), interpolation=cv2.INTER_AREA)
 cv2.imshow('map', map)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
