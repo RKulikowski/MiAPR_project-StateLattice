@@ -27,7 +27,7 @@ end_found = False
 
 end_found = point_finder(queue, end_found, list_of_points, height, width, points, array_of_collision, end_pos, map)
 create_path(points, array_of_paths, map)
-draw_path(map, points, end_found, end_pos, array_of_paths)
+map = draw_path(map, points, end_found, end_pos, array_of_paths)
 
 # map = cv2.resize(map, (750,1000), interpolation=cv2.INTER_AREA)
 cv2.imshow('map', map)

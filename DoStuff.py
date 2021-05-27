@@ -248,3 +248,4 @@ def draw_path(map, points, end_found, end_pos, array_of_paths):
             if path_from_point:
                 for point in path_from_point:
                     map[point[0], point[1]] = [0, 0, 255]
+    return map
