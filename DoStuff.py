@@ -19,7 +19,7 @@ def generate_sl_points(pixels_per_m, angle_step, lin_number):
             sl_y = -(sl_step - lin_middle) / abs(sl_step - lin_middle) \
                    * (sl_radius - np.cos(abs(sl_step - lin_middle) * np.radians(angle_step)) * sl_radius)
             sl_points.append((sl_x, sl_y, (sl_step - lin_middle) * angle_step, str((sl_step - lin_middle) * angle_step)
-                              + 'f', abs(sl_step - lin_middle) * angle_step/2 + 20))
+                              + 'f', abs(sl_step - lin_middle) * angle_step / 2 + 20))
     # for sl_step in range(lin_number):
     #     if sl_step == lin_middle:
     #         sl_x = 2.5 * pixels_per_m
@@ -194,13 +194,13 @@ def read_ultimate_map():
     map = cv2.imread(map_name)
     map = np.transpose(map, (1, 0, 2))
     width = 250
-    height = 100
-    start_pos = (60, 60)
+    height = 300
+    start_pos = (260, 60)
     start = Point(start_pos, None, 270, 0)
     return map, width, height, start_pos, start
 
 
-def point_finder(queue, end_found, list_of_points, height, width, points, array_of_collision, end_pos, map):
+def point_finder(queue, end_found, list_of_points, height, width, points, array_of_collision, end_pos, map, end_frame):
     while queue:
         print(len(queue))
         queue = sorted(queue, key=lambda e: e.heuristics)
@@ -227,14 +227,15 @@ def point_finder(queue, end_found, list_of_points, height, width, points, array_
                 # cv2.imshow('map', map)
                 # cv2.waitKey(0)
 
-                if abs(new_point.y - end_pos[1]) < 0 \
-                        and abs(new_point.orientation % 360 - end_pos[2]) <= 30:
-                    end_found = True
-                    print("end found!")
+                if abs(new_point.y - end_pos[1]) < 15 and abs(new_point.x - end_pos[0]) < 15\
+                        and abs(new_point.orientation % 360 - end_pos[2]) <= 0:
+                    if end_frame:
+                        end_found = True
+                        print("end found!")
                     break
         # if len(queue) > 200:
         #     break
-    return True
+    return end_found
 
 
 def create_path(points, array_of_paths, map):
@@ -248,9 +249,16 @@ def create_path(points, array_of_paths, map):
 def draw_path(map, points, end_found, end_pos, array_of_paths):
     finish_points = []
     print(len(points))
-    for finished_point in points:
-        if finished_point.y > 200:
-            finish_points.append(finished_point)
+    if not end_found:
+        for finished_point in points:
+            if finished_point.y > 200:
+                finish_points.append(finished_point)
+    else:
+        for finished_point in points:
+            if abs(finished_point.y - end_pos[1]) <= 15 and abs(finished_point.x - end_pos[0]) <= 15 \
+                    and abs(finished_point.orientation % 360 - end_pos[2]) <= 0:
+                finish_points.append(finished_point)
+                break
     # print(end_found)
     # if end_found:
     # print(len(finish_points))
@@ -273,4 +281,6 @@ def draw_path(map, points, end_found, end_pos, array_of_paths):
             if path_from_point:
                 for point in path_from_point:
                     map[point[0], point[1]] = [0, 0, 255]
+    map[end_pos[0], end_pos[1]] = [0, 255, 0]
+
     return map, path[-2]

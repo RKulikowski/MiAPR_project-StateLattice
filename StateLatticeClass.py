@@ -14,7 +14,7 @@ class Point:
             self.distance = parent_distance + distance
         else:
             self.distance = distance
-        self.heuristics = self.calculate_heuristics() + self.distance + 3.5*abs(60 - self.x)
+        self.heuristics = self.calculate_heuristics() + self.distance + 3*abs(260 - self.x)
         self.name = name
         self.reverse = reverse
 
