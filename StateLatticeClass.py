@@ -23,19 +23,24 @@ class Point:
                f'Orientation: {self.orientation}\nHeuristics: {self.heuristics}\nDistance: {self.distance}'
 
     def calculate_heuristics(self):
+        # obliczana jest heurystyka, po fakcie widze ze nie dodalismy tutaj flagi zeby liczylo ja od globalnego punktu
+        # jesli jest on osiagalny na obecnym okienku
         return math.sqrt(abs(self.position[0] - 240) * abs(self.position[0] - 240) + abs(self.position[1] - 60) *
                          abs(self.position[1] - 60))
 
     @staticmethod
     def do_rotate(angle, x, y):
+        # funkcja obracajaca punkt o kat, w sumie powinna znalezc sie poza klasa
         rad = np.radians(angle)
         x_prim = x * np.cos(-rad) - y * np.sin(-rad)
         y_prim = x * np.sin(-rad) + y * np.cos(-rad)
         return x_prim, y_prim
 
     def get_state_lattice(self, points_list):
+        # Obrot i przesuniecie predefiniowanych punktow na podstawie obecnego punktu
         sl_points = []
         for point_x, point_y, orientation, name, cost in points_list:
+            # ograniczenie maksymalnej zmiany kata skretu kol do 15 stopni na jeden przejechany odcinek
             if abs(int(self.name[:-1]) - orientation) <= 15:
                 x, y = self.do_rotate(self.orientation, point_x, point_y)
                 orient = orientation + self.orientation
@@ -44,6 +49,8 @@ class Point:
         return sl_points
 
     def return_path(self, paths_list):
+        # zwrocenie odpowiedniego wektora punktow z listy predefiniowanych sciezek na podstawie danych o poprzednim
+        # punkcie
         path_points = []
         if self.parent:
             path = paths_list[self.name]
